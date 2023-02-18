@@ -1,0 +1,51 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+  Add News source 
+{% endblock %}
+
+{% block page_contents %}
+  {# {{ form(form) }} #}
+
+  {{ form_start(form, { "class": "row g-3" }) }}
+
+    <div class="form-error">
+        {{ form_errors(form) }}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        {{ form_row(form.url) }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form_row(form.wrapperSelector) }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        {{ form_row(form.titleSelector) }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form_row(form.descriptionSelector) }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        {{ form_row(form.imageSelector) }}
+      </div>
+
+      <div class="col-md-6"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        {{ form_row(form.save, { "attr": { "class": "btn-primary form-control float-end" }}) }}
+      </div>
+    </div>
+
+{{ form_end(form) }}
+{% endblock %}

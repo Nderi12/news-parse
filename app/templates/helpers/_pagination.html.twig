@@ -1,0 +1,31 @@
+{% if numPages > 1 %}
+
+  {% set prevPage = currPage - 1 < 1 ? 1 : currPage - 1 %}
+  {% set nextPage = currPage + 1 <= numPages ? currPage + 1 : currPage %}
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      <li class="page-item {{ currPage == 1 ? 'disabled' }}">
+        <a class="page-link" href="{{ path(routeName, { page: prevPage }) }}">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+
+      {% for i in 1..numPages %}
+        <li class="page-item {{ currPage == i ? 'active' }}" {{ currPage == i ? 'aria-current="page"'}}>
+          <a class="page-link" href="{{ path(routeName, { page: i }) }}">
+            {{ i }}
+          </a>
+        </li>
+      {% endfor %}
+
+      <li class="page-item {{ currPage == numPages ? 'disabled' }}">
+        <a class="page-link" href="{{ path(routeName, { page: nextPage }) }}">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+
+  </nav>
+
+{% endif %}

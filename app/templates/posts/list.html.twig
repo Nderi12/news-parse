@@ -1,0 +1,81 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+  Scraped News
+{% endblock %}
+
+
+{% block page_contents %}
+
+  {% set counter = 0 %}
+
+  {% for post in posts %}
+
+    {% if loop.index % 2 == 1 %}
+      <div class="row">
+    {% endif %}
+
+    <div class="h-100 text-dark pb-5 col-lg-6 col-md-6 col-sm-12">
+
+      <div class="row">
+        <div class="col">
+          <small style="color: #222;">(Image URL: {{ post.image }})</small>
+        </div>
+      </div>
+
+      <div>
+        <span style="position: relative;">
+          <span style="display: block; padding: 51.8293% 0px 0px;"></span>
+
+          <img alt="" src="{{ post.image }}" style="position: absolute; inset: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;" />
+        </span>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6">
+          <span style="color: #aaa;">
+            <small>First fetched on {{ post.dateAdded | date('Y-m-d H:i:s') }}</small>
+          </span>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+          <span style="color: #aaa;" class="inline-block float-end">
+            <small>Last updated on {{ post.lastUpdated | date('Y-m-d H:i:s') }}</small>
+          </span>
+        </div>
+      </div>
+
+      <div class="row">
+        <h4 style="color: #222;">{{ post.title }}</h4>
+        <p style="color: #343a40;">
+          {{ post.description }}
+
+          {% if is_granted('ROLE_ADMIN') %}
+          <a href="{{ path('delete_post', { id: post.id }) }}" class="btn btn-danger float-end no-text-decoration">
+            Delete post
+          </a>
+          {% endif %}
+        </p>
+         
+      </div>
+      
+    </div>
+
+    {% if loop.index % 2 == 0 %}
+      </div>
+    {% endif %}
+
+  {% endfor %}
+
+  {% if posts | length > 0 %}
+    <div class="d-flex mb-3 aligns-items-center justify-content-center">
+      <small>Showing {{ startNum }} - {{ endNum }} of {{ totalCount }} posts</small>
+    </div>
+
+    {{ include('helpers/_pagination.html.twig') }}
+  {% else %}
+    <div class="d-flex mb-3 aligns-items-center justify-content-center">
+     There are no posts at the moment. Please try again later.
+    </div>
+  {% endif %}
+
+{% endblock %}

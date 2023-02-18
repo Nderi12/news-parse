@@ -1,0 +1,9 @@
+[
+	{
+		"url"                 : "https://www.coindesk.com/news",
+    "wrapperSelector"     : ".lenta-item",
+    "titleSelector"       : ".lenta-item > a:nth-of-type(1) > h2",
+    "descriptionSelector" : ".lenta-item > p",
+    "imageSelector"       : ".lenta-item .lenta-image noscript img"
+	}
+]

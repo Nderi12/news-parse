@@ -1,0 +1,96 @@
+version: "3"
+services:
+  php:
+    container_name: "${APP_NAME}_php"
+    build:
+      context: ./php-7-4-fpm-nginx
+    volumes:
+      - ./app:/var/www/symfony_docker
+      - ./supervisor:/etc/supervisor/conf.d
+      - ./shell-scripts:/usr/shell-scripts
+      - ./cron-logs/cron.log:/var/log/cron.log
+    networks:
+      - php
+      - mysql
+      - rabbitmq
+    depends_on:
+      - mysql
+    # "Wait" for the mysql server to be ready to accept connections
+    healthcheck:
+      test: mysqladmin ping -h mysql -u $MYSQL_USER --password=$MYSQL_PASSWORD
+      interval: 1m30s
+      timeout: 30s
+      retries: 10
+  
+    environment: 
+      ADMIN_USERNAME: "${ADMIN_USERNAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      MODERATOR_USERNAME: "${MODERATOR_USERNAME}"
+      MODERATOR_PASSWORD: "${MODERATOR_PASSWORD}"
+      USER_USERNAME: "${USER_USERNAME}"
+      USER_PASSWORD: "${USER_PASSWORD}"
+      POSTS_PER_PAGE: "${POSTS_PER_PAGE}"
+      CRON_SCHEDULE: "${CRON_SCHEDULE}"
+
+      # Define Symfony-required environment variables. 
+      # That is, move/override variables (that should be) defined inside the `/app/.env` file here 
+      # That way, we can define these variables inside our own `./.env` file, 
+      # which now acts as the single source of truth for environment variables,
+      # allowing the user to edit the variables as they like, 
+      # without having to search for and edit the `/app/.env` file. 
+      # This allows us to automate the complete install and run process
+      APP_ENV: "${APP_ENV}"
+      APP_SECRET: "${APP_SECRET}"
+      DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=5.7&charset=utf8mb4"
+      MESSENGER_TRANSPORT_DSN: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/%2f/messages"
+    entrypoint: [ bash, -c, "/usr/shell-scripts/init.sh" ]
+  nginx:
+    container_name: "${APP_NAME}_nginx"
+    image: nginx:1.17.9
+    ports:
+      - "${APP_PORT}:80"
+    volumes:
+      - ./app:/var/www/symfony_docker
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - php
+    depends_on:
+      - php
+      - mysql
+  mysql:
+    container_name: "${APP_NAME}_mysql"
+    image: mysql:5.7
+    # Fix Error: ER_NOT_SUPPORTED_AUTH_MODE:
+    # Client does not support authentication protocol requested by server;
+    # consider upgrading MySQL client
+    command: [--default-authentication-plugin=mysql_native_password]
+    restart: always
+    ports: 
+      - "${MYSQL_PORT}:3306"
+    volumes: 
+      - ./.data/mysql:/var/lib/mysql
+    networks:
+      - mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+  rabbitmq: 
+    container_name: "${APP_NAME}_rabbitmq"
+    hostname: rabbit
+    image: rabbitmq:3.10.8-management
+    environment: 
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER} 
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes: 
+      - ./.data/rabbitmq/:/var/lib/rabbitmq
+    networks:
+      - rabbitmq
+    ports: 
+      - "5672:5672" 
+      - "${RABBITMQ_WEB_PORT}:15672"
+networks:
+  php: 
+  mysql:
+  rabbitmq:

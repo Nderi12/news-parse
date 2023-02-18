@@ -1,0 +1,32 @@
+FROM php:7.4-fpm
+
+RUN apt update \
+    && apt install -y zlib1g-dev g++ git libicu-dev zip libzip-dev zip \
+    && docker-php-ext-install intl opcache pdo pdo_mysql \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y cron procps sudo supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install amqp php extension 
+# Cf. https://stackoverflow.com/a/65345103/1743192
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \ 
+    /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
+    install-php-extensions amqp
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php 
+RUN sudo mv composer.phar /usr/bin/composer
+
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | sudo -E bash
+RUN apt install symfony-cli
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+WORKDIR /var/www/symfony_docker

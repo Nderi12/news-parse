@@ -1,0 +1,23 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+  Details for News Source: <a href="{{ source.url }}" target="_blank">{{ source.url }}</a>
+{% endblock %}
+
+{% block page_contents %}
+
+  <ul>
+    <li>ID: {{ source.id }}</li>
+    <li>
+      URL: <a href="{{ source.url }}" target="_blank">{{ source.url }}</a>
+    </li>
+    <li>Wrapper Selector: {{ source.wrapperSelector }}</li>
+    <li>Title Selector: {{ source.titleSelector }}</li>
+    <li>Description Selector: {{ source.descriptionSelector }}</li>
+    <li>Image Selector: {{ source.imageSelector }}</li>
+    <li>
+      <a href="{{ path('process_news_source', {id: source.id}) }}">Scrape News from this URL</a>
+    </li>
+  </ul>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+  Available News Sources
+{% endblock %}
+
+{% block page_contents %}
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th title="Reference #">#</th>
+        <th title="News Source URL">URL</th>
+        <th title="Article Wrapper (CSS) Selector">Wrapper Sel.</th>
+        <th title="Article Title (CSS) Selector">Title Sel.</th>
+        <th title="Article Description (CSS) Selector">Desc Sel.</th>
+        <th title="Article Image (CSS) Selector">Image Sel.</th>
+        <th title="Actions">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for source in sources %}
+
+        <tr>
+          <td>{{ source.id }}</td>
+          <td><a href="{{ source.url }}" target="_blank">{{ source.url }}</a></td>
+          <td>{{ source.wrapperSelector }}</td>
+          <td>{{ source.titleSelector }}</td>
+          <td>{{ source.descriptionSelector }}</td>
+          <td>{{ source.imageSelector }}</td>
+          <td>
+            <a href="{{ path('source_detail', {id: source.id}) }}">View source details</a> <br />
+            <a href="{{ path('process_news_source', {id: source.id}) }}">Scrape News from this URL</a>
+          </td>
+        </tr>
+
+      {% endfor %}
+    </tbody>
+  
+  </table>
+  
+{% endblock %}
